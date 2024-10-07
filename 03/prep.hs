@@ -72,6 +72,8 @@
 -- mymap f xs = 
 
 -- f. opgave
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Eta reduce" #-}
 
 somefunc :: (Ord a1, Eq a2) =>a2 -> a2 -> (a1, a1)-> a1
 somefunc a b (x,y) = if a == b then x else y

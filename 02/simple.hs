@@ -1,4 +1,7 @@
 -- This is the simple program from the slides from the introduction
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use foldr" #-}
+{-# HLINT ignore "Redundant bracket" #-}
 
 laengde :: (Num p) => [a] -> p
 
