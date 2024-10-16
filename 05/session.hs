@@ -68,9 +68,9 @@ wrapupped = wrapup [1, 1, 1, 2, 3, 3, 2]
 -- triples [] = ([],[],[])
 -- triples
 
-triples [] = ([],[],[])
-triples [(a, b, c)] = ([a], [b], [c])
-triples 
+-- triples [] = ([],[],[])
+-- triples [(a, b, c)] = ([a], [b], [c])
+-- triples 
 -- triples (x : xs, y : ys, z : zs) = [x, y, z] : Triples [(xs, ys, zs)]
 
 -- wrapup :: (Eq a) => [a] -> [[a]]
