@@ -77,5 +77,5 @@ partitionfr p xs = (inde, ude)
 
 partitionedfrfrnocap = partitionf (> 5) (take 10 [1 ..])
 
-filterfr :: (a-> Bool) -> [a] -> [a]
-filterfr p xs = 
+-- filterfr :: (a-> Bool) -> [a] -> [a]
+-- filterfr p xs = 
