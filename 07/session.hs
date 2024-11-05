@@ -23,21 +23,21 @@ least (Node l x r) = min x (min (least l) (least r))
 
 oak = Node (Node (Leaf 1) 3 (Leaf 4)) 5 (Node (Leaf 6) 7 (Leaf 9))
 
-data Aexp = Num Int | Var String | Plus Aexp Aexp | Mult Aexp Aexp
+data Aexp = Num Int | Var' String | Plus Aexp Aexp | Mult Aexp Aexp
 
-eval :: Aexp -> (String -> Int) -> Int
-eval (Num n) _ = n
-eval (Var x) ass = ass x
-eval (Plus l r) ass = eval l ass + eval r ass
-eval (Mult l r) ass = eval l ass * eval r ass
+eval' :: Aexp -> (String -> Int) -> Int
+eval' (Num n) _ = n
+eval' (Var' x) ass = ass x
+eval' (Plus l r) ass = eval' l ass + eval' r ass
+eval' (Mult l r) ass = eval' l ass * eval' r ass
 
-expr = Plus (Mult (Num 2) (Var "x")) (Var "y") -- should evaluate to 10 with the assignments [x->3,y->4]
+expr = Plus (Mult (Num 2) (Var' "x")) (Var' "y") -- should evaluate to 10 with the assignments [x->3,y->4]
 
 assignments :: String -> Int
 assignments "x" = 3
 assignments "y" = 4
 
-evaluated = eval expr assignments
+evaluated = eval' expr assignments
 
 data Encyclopedia a = Leaf' String a | Node' String a [Encyclopedia a] deriving (Show)
 
@@ -71,9 +71,11 @@ layered''''' a (Node' _ v es) = (maybe True (v >) a && cond) && all next es
 
 -- should be False
 layeredNt = layered''''' Nothing (Node' "plonk" 4 [Node' "zap" 3 [Leaf' "ninka" 8], Node' "uhu" 4 [Leaf' "gif" 9], Leaf' "bingo" 5])
+
 -- should be False
 layeredNt' :: Bool
 layeredNt' = layered''''' Nothing (Node' "plonk" 1 [Node' "zap" 3 [Leaf' "ninka" 8], Node' "uhu" 4 [Leaf' "gif" 4], Leaf' "bingo" 5])
+
 -- should be False
 layertest = layered''''' Nothing (Node' "a" 1 [Node' "b" 2 [Leaf' "c" 3], Leaf' "d" 4])
 
@@ -86,3 +88,51 @@ instance InVector Bool where
   (&&&) = (||)
   (***) :: Bool -> Bool -> Int
   (***) l r = if l && r then 1 else 0
+
+count :: Tree a -> Int
+count (Leaf _) = 1
+count (Node l _ r) = count l + count r
+
+balanced :: Tree a -> Bool
+balanced (Leaf _) = True
+balanced (Node l _ r) = abs (count l - count r) <= 1 && balanced l && balanced r
+
+unbalanced = balanced (Node (Node (Leaf 3) 2 (Node (Leaf 5) 4 (Leaf 6))) 1 (Leaf 3))
+
+-- from 8.6 in Graham Hutton
+data Prop
+  = Const Bool
+  | Var Char
+  | Not Prop
+  | And Prop Prop
+  | Imply Prop Prop
+
+type Assoc k v = [(k, v)]
+
+find :: (Eq k) => k -> Assoc k v -> v
+find k t = head [v | (k', v) <- t, k == k']
+
+type Subst = Assoc Char Bool
+
+eval :: Subst -> Prop -> Bool
+eval _ (Const b) = b
+eval s (Var x) = find x s
+eval s (Not p) = not (eval s p)
+eval s (And l r) = eval s l && eval s r
+eval s (Imply p q) = eval s p <= eval s q
+
+vars :: Prop -> [Char]
+vars (Const _) = []
+vars (Var x) = [x]
+vars (Not p) = vars p
+vars (And p q) = vars p ++ vars q
+vars (Imply p q) = vars p ++ vars q
+
+-- not tested :D
+equiv :: Prop -> Prop -> Bool
+equiv p q = eval [] pq && eval [] qp 
+  where
+    pq = Imply p q 
+    qp = Imply q p 
+
+    
