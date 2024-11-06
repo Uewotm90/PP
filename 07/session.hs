@@ -1,4 +1,3 @@
-import Data.Maybe
 import Data.Maybe (listToMaybe)
 
 data Unary = Z | I Unary
