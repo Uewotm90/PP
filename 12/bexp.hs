@@ -1,50 +1,4 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
-{-# HLINT ignore "Use <$>" #-}
--- ghc -I. --make Parsing.hs
-import Parsing
-
-data Onion = Core Integer | Layer Onion deriving (Show)
-
-onion :: Parser Onion
-onion =
-  do
-    y <- char 'L'
-    rest <- onion
-    return (Layer rest)
-    <|> do
-      c <- core
-      return (Core c)
-
-core :: Parser Integer
-core = toInteger <$> int
-
-theonion :: String -> Either String Onion
-theonion inp = case (parse onion inp) of
-  [(o, "")] -> Right o
-  [(_, out)] -> Left out
-  [] -> Left "invalid input"
-
-type AB = String
-
-ab :: Parser AB -- does not work with empty input, which is recognized by L
-ab =
-  do
-    a <- char 'a'
-    b <- char 'b'
-    return (a : [b])
-    <|> do
-      a <- char 'a'
-      mid <- ab
-      b <- char 'b'
-      return ([a] ++ mid ++ [b])
-
--- 1. exericise
--- expr ::= <term> + <expr> | <term>
--- it is not a good idea to use the alternative implementation of expr
--- all rules for expr start with term, so parsing a term alone will always succed and result in "+ <expr>" being left unconsumed.
--- The rest of the input string cannot be parsed by any part of expr
--- Read: common prefix problem
+import Parsing 
 data B = B Bexp | T Term | A Atom deriving Show
 
 data Bexp = And Term Bexp | Or Term Bexp | Term Term deriving Show
@@ -140,9 +94,9 @@ evalBexp inp = case (parse boolean inp) of
 -- this should be able to evaluate multiple trees (in case of ambiguous parses)
 evalBexp' inp = do
   (bexp,rest) <- parse boolean inp
-  if not $ null rest then return Nothing else return $ Just (evaluator bexp)
+  if not $ null rest then return Nothing else return $ Just $ evaluator bexp
 
 trueorfalseandfalse = evalBexp "(torf)andf" -- should evaluate to `Just False`
 trueorfalseandtrue = evalBexp "(torf)andt" -- should evaluate to `Just True`
 
-notaBexp = evalBexp "t+1" -- shouldnt evaluate to a boolean valuea
+notaBexp = evalBexp "t+1" -- shouldnt evaluate to a boolean value
