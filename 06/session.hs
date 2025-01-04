@@ -1,4 +1,3 @@
-import Distribution.Simple.Utils (xargs)
 
 -- prep
 
