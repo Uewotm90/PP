@@ -21,9 +21,9 @@ a x (u, v) = if u == v then [x] else []
 b f p l r = if p && l == r then f l r else False
 
 -- 2.1c
--- c v mb = do
---     sequence_ [show v]
---     return mb
+c v mb = do
+  putStr (show v)
+  return mb
 
 -- 2.1d
 d f l r = [f l, f r]
@@ -44,49 +44,79 @@ minimax t =
     treeToList (Leaf e) = [e]
     treeToList (Node l r) = treeToList l ++ treeToList r
 
+-- By converting the tree to a list, we can utilize the already inbuilt minimum and maximum functions
 -- 4.1
 echo =
   putStr "Please type a word: " >> getLine >>= \x ->
     putStrLn ("You typed " ++ x)
 
 -- 4.2
-boolPairs i = read i::[(Bool,Bool)]
+boolPairs i = read i :: [(Bool, Bool)]
+
 seconds = do
-    input <- getLine
-    putStrLn $ show $ map snd $ boolPairs input
-    return ()
+  input <- getLine
+  putStrLn $ show $ map snd $ boolPairs input
+  return ()
+
 -- [(True,False),(False,True),(False,False)]
 
 -- 5.1
 -- Alternating lists (using shown syntax) is disallowed since list elements in Haskell can only be of one type
 
 -- 5.2
-data Alternating a b = Pair (a,b) | Else a deriving Show
--- The Else constructor is necessary if lists are uneven length (i.e. more a's than b's)
+-- data Alternating a b = Pair (a, b) | Else a deriving (Show)
+
+-- The Else constructor is necessary if lists are odd length (i.e. more a's than b's)
 -- myalt = [A 5, B True,A 6,B False, A 7, B True]
-myalt = [Pair (5,True),Pair(6,False),Pair(7,False)]
+-- myalt = [Pair (5, True), Pair (6, False), Pair (7, False)]
+
+-- 5.2'
+data Alternating' a b = Pair' [(a, b)] (Maybe a)
+
+-- The 'Maybe a' is present in case a list of odd length is required
+myalt' = Pair' [(5, True), (6, False), (7, False)] Nothing
+
 -- 5.3
-separate [] = ([],[])
-separate ((Else l):xs) = let (left,right) = separate xs in
-    (l:left,right)
-separate ((Pair (l,r)):xs) = let (left,right) = separate xs in
-    (l:left,r:right)
+-- separate [] = ([], [])
+-- separate ((Else l) : xs) =
+--   let (left, right) = separate xs
+--    in (l : left, right)
+-- separate ((Pair (l, r)) : xs) =
+--   let (left, right) = separate xs
+--    in (l : left, r : right)
+
+-- 5.3'
+separate' (Pair' [] Nothing) = ([], [])
+separate' (Pair' [] (Just v)) = ([v], [])
+separate' (Pair' ((x, y) : xs) r) = ((x : left) ++ maybeToList r, y : right)
+  where
+    (left, right) = separate' (Pair' xs Nothing)
+    maybeToList Nothing = []
+    maybeToList (Just v) = [v]
 
 -- 5.4
-infinite = map (\x -> Pair (x,replicate x 'a'))[1..]
+-- infinite = map (\x -> Pair (x, replicate x 'a')) [1 ..]
 
-newtype ToPairs a = TP (a,a)
--- 6.1 
-booltopairs = TP (True,False)
-ftoPairs = (\x -> if x == Just 1 then 0 else 1,\y -> if y == Just 0 then 1 else 0)
-    -- where f mx = if mx == Nothing then 0 else 1 
+-- 5.4'
+infinite' = Pair' (iterate (\(x, y) -> (x + 1, y ++ "a")) (1, "a")) Nothing
+
+-- 6
+newtype ToPairs a = TP (a, a)
+
+-- 6.1
+booltopairs = TP (True, False)
+
+ftoPairs = (\x -> if x == Just 1 then 0 else 1, \y -> if y == Just 0 then 1 else 0)
+
+-- where f mx = if mx == Nothing then 0 else 1
 
 instance Functor ToPairs where
---   fmap :: (a -> b) -> ToPairs a -> ToPairs b
-  fmap g (TP (l,r)) = TP (g l, g r)
+  --   fmap :: (a -> b) -> ToPairs a -> ToPairs b
+  fmap g (TP (l, r)) = TP (g l, g r)
 
 instance Applicative ToPairs where
---   pure :: a -> ToPairs a
-  pure v = TP (v,v)
---   (<*>) :: ToPairs (a -> b) -> ToPairs a -> ToPairs b
-  (<*>) (TP (g,_)) (TP (l,r)) = TP (g l, g r)
+  --   pure :: a -> ToPairs a
+  pure v = TP (v, v)
+
+  --   (<*>) :: ToPairs (a -> b) -> ToPairs a -> ToPairs b
+  (<*>) (TP (g, _)) (TP (l, r)) = TP (g l, g r)
