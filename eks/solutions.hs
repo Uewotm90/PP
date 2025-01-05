@@ -1,5 +1,3 @@
-import Text.Printf (IsChar(toChar))
-
 -- problem 1.1
 rotate (x : xs) = xs ++ [x]
 
@@ -11,8 +9,8 @@ allrotates xs = xs : take (length xs - 1) (allrotates (rotate xs))
 -- This function is also parametrically polymorphic since type a can be substituted for any type
 
 -- problem 1.3
--- allrotates' xs TBD
-
+allrotates' xs = map (\x -> iterate rotate xs !! x ) [0..length xs-1]
+-- allrotates' xs = take (length xs) $ iterate rotate xs
 -- problem 2.1
 data Tree a = Leaf a | Node (Tree a) (Maybe a) (Tree a) deriving (Show)
 
@@ -76,18 +74,19 @@ fivepointtwo = [(toInteger 1, \x -> 'c')]
 -- This expression is parametrically polymorphic since lambda expression accepts arguments of any type
 
 -- Problem 5.3
-fivepointthree f x = f x True 
+fivepointthree f x = f x True
 -- This function is parametrically polymorphic since types t1 and t2 are unconstrained
 
 -- Problem 5.4
-fivepointfour x = map (1+) [x..]
+fivepointfour x = map (1+) [x..] -- not quite there
+-- ! fivepointfour' = fromEnum $ toEnum undefined
 -- This function is ad hoc polymorphic since the type x is constrained to the typeclasses Num and Enum
 
--- Problem 6.1 TBD
-
+-- Problem 6.1
+naturals = 1:map (+1) naturals
 -- Problem 6.2
 facs = map (\x -> product [1..x]) [0..]
-
+-- firstten = take 10 facs
 -- Problem 6.3
-facs' = zipWith (*) facs' [1..] 
--- facs'' = 1 : (zipWith (*) )
+facs' = 1 : zipWith (*) facs' naturals
+-- firstten' = take 10 facs'
