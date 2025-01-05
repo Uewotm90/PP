@@ -77,4 +77,8 @@ partitionfr p xs = (inde, ude)
 partitionedfrfrnocap = partitionf (> 5) (take 10 [1 ..])
 
 -- filterfr :: (a-> Bool) -> [a] -> [a]
--- filterfr p xs = 
+filterfr p xs = reverse $ foldr (\x acc -> if p x then acc ++ [x] else acc ) [] xs
+
+
+-- remove :: String -> String -> String
+remove ls rs = reverse $ foldr (\x acc -> if x `elem` ls then acc else acc ++ [x]  ) "" rs
